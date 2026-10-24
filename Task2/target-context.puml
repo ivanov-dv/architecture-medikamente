@@ -1,0 +1,37 @@
+@startuml target-context
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Context.puml
+
+title Медикаменте — C4 Context, To-Be
+
+Person(patient, "Пациент", "Клиент клиники")
+Person(staff, "Сотрудники", "Ресепшен, врачи, бухгалтерия, склад")
+Person(mgmt, "Руководство", "Получает отчёты")
+
+System_Ext(lab, "Лаборатория", "Анализы")
+System_Ext(bank, "Банк и налоговые органы", "Выплаты, отчётность")
+
+Enterprise_Boundary(med, "Медикаменте") {
+    System(client, "Портал клиента", "Web и мобильное приложение, ЛК")
+    System(staffp, "Портал сотрудников", "Рабочее место по ролям")
+    System(gw, "API Gateway", "TLS/mTLS, OAuth2, фильтрация полей")
+    System(core, "Бизнес-платформа", "CRM, записи, ЭМК, платежи")
+    System(erp, "1С и ККМ", "Бухгалтерия, склад, касса")
+    System(analytics, "Аналитический слой", "Data Lake, обезличивание, BI/ML")
+    System(privacy, "Privacy Control Plane", "Согласия, RBAC/ABAC, теги, retention")
+    System(audit, "Аудит и мониторинг", "Lineage, SIEM, алерты")
+}
+
+Rel(patient, client, "запись, свои данные")
+Rel(staff, staffp, "работа по роли")
+Rel(client, gw, "HTTPS")
+Rel(staffp, gw, "HTTPS")
+Rel(lab, gw, "результаты, mTLS")
+Rel(gw, core, "запросы")
+Rel(core, erp, "платежи, учёт")
+Rel(erp, bank, "выплаты, отчётность")
+Rel(core, privacy, "согласия, доступ")
+Rel(privacy, audit, "события")
+Rel(core, analytics, "обезличенные данные")
+Rel(analytics, mgmt, "отчёты")
+
+@enduml
